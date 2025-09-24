@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000/api';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 
 // API utility functions for task operations
 export const tasksAPI = {
@@ -39,7 +39,7 @@ export const tasksAPI = {
   // Get single task by ID
   async getTask(id) {
     try {
-      const response = await fetch(`${API_BASE}/tasks/${id}`);
+      const response = await fetch(`${API_BASE}/api/tasks/${id}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -56,7 +56,7 @@ export const tasksAPI = {
   // Create new task
   async createTask(taskData) {
     try {
-      const response = await fetch(`${API_BASE}/tasks`, {
+      const response = await fetch(`${API_BASE}/api/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export const tasksAPI = {
   // Update existing task
   async updateTask(id, updateData) {
     try {
-      const response = await fetch(`${API_BASE}/tasks/${id}`, {
+      const response = await fetch(`${API_BASE}/api/tasks/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ export const tasksAPI = {
   // Delete task
   async deleteTask(id) {
     try {
-      const response = await fetch(`${API_BASE}/tasks/${id}`, {
+      const response = await fetch(`${API_BASE}/api/tasks/${id}`, {
         method: 'DELETE',
       });
       
