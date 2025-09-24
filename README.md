@@ -39,13 +39,42 @@ A modern, full-stack task management application built with React, Node.js, and 
 
 ### Local Development
 
+#### Quick Start (Recommended)
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd task-manager-to-do-app
    ```
 
-2. **Backend Setup**
+2. **Install all dependencies**
+   ```bash
+   npm run install:all
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   # Backend
+   cp backend/.env.example backend/.env
+   # Edit backend/.env with your MongoDB connection string
+   
+   # Frontend
+   cp frontend/.env.example frontend/.env
+   # Edit frontend/.env with your API base URL
+   ```
+
+4. **Start both frontend and backend**
+   ```bash
+   npm run dev
+   ```
+
+5. **Access the application**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:4000
+
+#### Individual Setup (Alternative)
+If you prefer to run frontend and backend separately:
+
+1. **Backend Setup**
    ```bash
    cd backend
    npm install
@@ -54,7 +83,7 @@ A modern, full-stack task management application built with React, Node.js, and 
    npm run dev
    ```
 
-3. **Frontend Setup**
+2. **Frontend Setup** (in a new terminal)
    ```bash
    cd frontend
    npm install
@@ -63,27 +92,54 @@ A modern, full-stack task management application built with React, Node.js, and 
    npm run dev
    ```
 
-4. **Access the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3000
-
 ### Environment Variables
 
 #### Backend (.env in backend/)
 ```env
-PORT=3000
+PORT=4000
 MONGODB_URI=mongodb://localhost:27017/taskmanager
-JWT_SECRET=your-secret-key
 NODE_ENV=development
 ```
 
 #### Frontend (.env in frontend/)
 ```env
-VITE_API_BASE_URL=http://localhost:3000/api
-VITE_APP_NAME=Task Manager
+VITE_API_BASE=http://localhost:4000/api
+```
+
+## 📋 Available Scripts
+
+### Root Level Commands
+```bash
+npm run dev           # Start both frontend and backend in development mode
+npm run build         # Build both frontend and backend for production
+npm test              # Run all tests (backend + frontend)
+npm run install:all   # Install dependencies for root, backend, and frontend
+npm start             # Start both frontend and backend in production mode
+```
+
+### Individual Commands
+```bash
+# Backend only
+npm run dev:backend   # Start backend development server
+npm run build:backend # Build backend for production
+npm run test:backend  # Run backend tests
+npm run start:backend # Start backend production server
+
+# Frontend only
+npm run dev:frontend  # Start frontend development server
+npm run build:frontend # Build frontend for production
+npm run test:frontend  # Run frontend tests
+npm run start:frontend # Start frontend preview server
 ```
 
 ## 🧪 Testing
+
+### Run All Tests
+```bash
+npm test              # Run both backend and frontend tests
+npm run test:backend # Run only backend tests
+npm run test:frontend # Run only frontend tests
+```
 
 ### Backend Tests
 ```bash
@@ -97,7 +153,7 @@ npm run test:coverage # Run tests with coverage report
 ```bash
 cd frontend
 npm test              # Run all tests
-npm run test:ui       # Run tests with UI
+npm run test:watch    # Run tests in watch mode
 npm run test:coverage # Run tests with coverage report
 ```
 
