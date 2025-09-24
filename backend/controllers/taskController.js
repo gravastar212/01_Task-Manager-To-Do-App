@@ -1,7 +1,7 @@
 const Task = require('../models/Task');
 
 // GET /tasks - List all tasks with optional filtering
-const getAllTasks = async (req, res) => {
+const getAllTasks = async (req, res, next) => {
   try {
     const { completed, priority, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     
@@ -26,23 +26,22 @@ const getAllTasks = async (req, res) => {
       data: tasks
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching tasks',
-      error: error.message
-    });
+    next(error);
   }
 };
 
 // GET /tasks/:id - Get single task
-const getTask = async (req, res) => {
+const getTask = async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id);
     
     if (!task) {
       return res.status(404).json({
-        success: false,
-        message: 'Task not found'
+        error: 'Task not found',
+        details: {
+          message: `No task found with ID: ${req.params.id}`,
+          type: 'NotFoundError'
+        }
       });
     }
 
@@ -51,33 +50,14 @@ const getTask = async (req, res) => {
       data: task
     });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid task ID format'
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      message: 'Error fetching task',
-      error: error.message
-    });
+    next(error);
   }
 };
 
 // POST /tasks - Create new task
-const createTask = async (req, res) => {
+const createTask = async (req, res, next) => {
   try {
     const { title, description, priority, dueDate } = req.body;
-
-    // Validate required fields
-    if (!title || title.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        message: 'Title is required'
-      });
-    }
 
     const task = await Task.create({
       title: title.trim(),
@@ -92,25 +72,12 @@ const createTask = async (req, res) => {
       data: task
     });
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: errors
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      message: 'Error creating task',
-      error: error.message
-    });
+    next(error);
   }
 };
 
 // PUT /tasks/:id - Update task
-const updateTask = async (req, res) => {
+const updateTask = async (req, res, next) => {
   try {
     const { title, description, completed, priority, dueDate } = req.body;
     
@@ -129,8 +96,11 @@ const updateTask = async (req, res) => {
 
     if (!task) {
       return res.status(404).json({
-        success: false,
-        message: 'Task not found'
+        error: 'Task not found',
+        details: {
+          message: `No task found with ID: ${req.params.id}`,
+          type: 'NotFoundError'
+        }
       });
     }
 
@@ -140,56 +110,28 @@ const updateTask = async (req, res) => {
       data: task
     });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid task ID format'
-      });
-    }
-    
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: errors
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      message: 'Error updating task',
-      error: error.message
-    });
+    next(error);
   }
 };
 
 // DELETE /tasks/:id - Delete task
-const deleteTask = async (req, res) => {
+const deleteTask = async (req, res, next) => {
   try {
     const task = await Task.findByIdAndDelete(req.params.id);
 
     if (!task) {
       return res.status(404).json({
-        success: false,
-        message: 'Task not found'
+        error: 'Task not found',
+        details: {
+          message: `No task found with ID: ${req.params.id}`,
+          type: 'NotFoundError'
+        }
       });
     }
 
     res.status(204).send();
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid task ID format'
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      message: 'Error deleting task',
-      error: error.message
-    });
+    next(error);
   }
 };
 

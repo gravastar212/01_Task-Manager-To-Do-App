@@ -8,34 +8,76 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose bad ObjectId
   if (err.name === 'CastError') {
-    const message = 'Resource not found';
-    error = { message, statusCode: 404 };
+    return res.status(404).json({
+      error: 'Resource not found',
+      details: {
+        message: `Invalid ID format: ${err.value}`,
+        type: 'CastError'
+      }
+    });
   }
 
   // Mongoose duplicate key
   if (err.code === 11000) {
-    const message = 'Duplicate field value entered';
-    error = { message, statusCode: 400 };
+    return res.status(400).json({
+      error: 'Duplicate field value',
+      details: {
+        message: 'A resource with this value already exists',
+        type: 'DuplicateKeyError',
+        field: Object.keys(err.keyPattern)[0]
+      }
+    });
   }
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map(val => val.message).join(', ');
-    error = { message, statusCode: 400 };
+    const validationErrors = Object.values(err.errors).map(val => ({
+      field: val.path,
+      message: val.message,
+      value: val.value
+    }));
+    
+    return res.status(400).json({
+      error: 'Validation failed',
+      details: {
+        validationErrors,
+        message: 'Please check the provided data and try again',
+        type: 'ValidationError'
+      }
+    });
   }
 
+  // Default server error
   res.status(error.statusCode || 500).json({
-    success: false,
-    message: error.message || 'Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    error: 'Internal server error',
+    details: {
+      message: process.env.NODE_ENV === 'production' 
+        ? 'Something went wrong on our end' 
+        : error.message || 'Server Error',
+      type: 'ServerError',
+      ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+    }
   });
 };
 
 // 404 handler for undefined routes
 const notFound = (req, res, next) => {
-  const error = new Error(`Not found - ${req.originalUrl}`);
-  res.status(404);
-  next(error);
+  res.status(404).json({
+    error: 'Route not found',
+    details: {
+      message: `The requested route ${req.originalUrl} does not exist`,
+      type: 'NotFoundError',
+      availableRoutes: [
+        'GET /',
+        'GET /health',
+        'GET /api/tasks',
+        'GET /api/tasks/:id',
+        'POST /api/tasks',
+        'PUT /api/tasks/:id',
+        'DELETE /api/tasks/:id'
+      ]
+    }
+  });
 };
 
 module.exports = {

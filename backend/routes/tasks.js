@@ -8,6 +8,8 @@ const {
   deleteTask
 } = require('../controllers/taskController');
 
+const { validateTask, validateTaskUpdate, handleValidationErrors } = require('../middleware/validation');
+
 // GET /api/tasks - List all tasks
 router.get('/', getAllTasks);
 
@@ -15,10 +17,10 @@ router.get('/', getAllTasks);
 router.get('/:id', getTask);
 
 // POST /api/tasks - Create new task
-router.post('/', createTask);
+router.post('/', validateTask, handleValidationErrors, createTask);
 
 // PUT /api/tasks/:id - Update task
-router.put('/:id', updateTask);
+router.put('/:id', validateTaskUpdate, handleValidationErrors, updateTask);
 
 // DELETE /api/tasks/:id - Delete task
 router.delete('/:id', deleteTask);
