@@ -83,7 +83,7 @@ const createTask = async (req, res) => {
       title: title.trim(),
       description: description?.trim() || '',
       priority: priority || 'medium',
-      dueDate: dueDate || null
+      dueDate: dueDate ? new Date(dueDate) : null
     });
 
     res.status(201).json({

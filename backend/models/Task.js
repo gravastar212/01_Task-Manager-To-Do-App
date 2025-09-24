@@ -28,9 +28,12 @@ const taskSchema = new mongoose.Schema({
     type: Date,
     validate: {
       validator: function(value) {
-        return !value || value > new Date();
+        if (!value) return true;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of today
+        return value >= today;
       },
-      message: 'Due date must be in the future'
+      message: 'Due date must be today or in the future'
     }
   },
   createdAt: {
