@@ -758,6 +758,91 @@ describe('API', () => {
 4. Add environment variables in Render dashboard
 5. Create MongoDB database service in Render
 
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### **Connection Error / Failed to Fetch**
+**Symptoms**: Frontend shows "Connection Error" or "Failed to fetch tasks"
+
+**Causes & Solutions**:
+1. **Missing Environment Variables**
+   ```bash
+   # Check frontend .env file
+   cat frontend/.env
+   # Should contain: VITE_API_BASE=https://your-backend.onrender.com/api
+   ```
+
+2. **CORS Issues**
+   ```bash
+   # Test CORS headers
+   curl -X GET "https://your-backend.onrender.com/api/tasks" \
+     -H "Origin: https://your-frontend.netlify.app" \
+     -v
+   # Should show: access-control-allow-origin: https://your-frontend.netlify.app
+   ```
+
+3. **Backend Environment Variables**
+   - Check Render dashboard → Environment tab
+   - Ensure `FRONTEND_URL` is set to your Netlify URL
+   - Redeploy backend after updating environment variables
+
+#### **API Returns 200 but Frontend Shows Error**
+**Cause**: CORS preflight failure or response parsing issue
+
+**Solution**:
+1. Check browser DevTools Network tab
+2. Look for CORS errors in Console
+3. Verify backend CORS configuration allows your frontend domain
+
+#### **Database Connection Issues**
+**Symptoms**: Backend logs show MongoDB connection errors
+
+**Solutions**:
+1. Verify `MONGODB_URI` in Render environment variables
+2. Check MongoDB Atlas IP whitelist (should include `0.0.0.0/0`)
+3. Ensure database user has read/write permissions
+
+### Debug Commands
+
+#### **Test Backend API**
+```bash
+# Health check
+curl https://your-backend.onrender.com/health
+
+# Get tasks
+curl https://your-backend.onrender.com/api/tasks
+
+# Test CORS
+curl -X GET "https://your-backend.onrender.com/api/tasks" \
+  -H "Origin: https://your-frontend.netlify.app" \
+  -v
+```
+
+#### **Check Environment Variables**
+```bash
+# Frontend
+cat frontend/.env
+
+# Backend (local)
+cat backend/.env
+
+# Backend (production) - Check Render dashboard
+```
+
+#### **Verify Deployment**
+```bash
+# Check if files are deployed correctly
+# Frontend: Visit your Netlify URL
+# Backend: Visit https://your-backend.onrender.com/health
+```
+
+### Getting Help
+- Check the [Deployment Fix Guide](DEPLOYMENT_FIX.md) for detailed troubleshooting
+- Review Render and Netlify deployment logs
+- Test API endpoints directly with curl
+- Check browser DevTools for specific error messages
+
 ## 📝 Features
 
 - ✅ Create, read, update, and delete tasks
