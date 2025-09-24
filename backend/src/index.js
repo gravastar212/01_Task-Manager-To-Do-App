@@ -7,6 +7,12 @@ require('dotenv').config();
 // Import database connection
 const connectDB = require('./db');
 
+// Import routes
+const taskRoutes = require('../routes/tasks');
+
+// Import middleware
+const { errorHandler, notFound } = require('../middleware/errorHandler');
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -18,6 +24,9 @@ app.use(cors({
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use('/api/tasks', taskRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -34,9 +43,17 @@ app.get('/', (req, res) => {
     message: 'Task Manager API',
     version: '1.0.0',
     status: 'running',
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    endpoints: {
+      tasks: '/api/tasks',
+      health: '/health'
+    }
   });
 });
+
+// Error handling middleware (must be after routes)
+app.use(notFound);
+app.use(errorHandler);
 
 // Start server with database connection
 const startServer = async () => {
@@ -50,6 +67,12 @@ const startServer = async () => {
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
       console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
       console.log(`🗄️ Database: ${process.env.MONGODB_URI ? 'Configured' : 'Not configured'}`);
+      console.log(`📋 API Endpoints:`);
+      console.log(`   GET    /api/tasks     - List all tasks`);
+      console.log(`   GET    /api/tasks/:id  - Get single task`);
+      console.log(`   POST   /api/tasks     - Create task`);
+      console.log(`   PUT    /api/tasks/:id - Update task`);
+      console.log(`   DELETE /api/tasks/:id - Delete task`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);
