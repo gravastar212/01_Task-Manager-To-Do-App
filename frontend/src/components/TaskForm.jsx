@@ -1,18 +1,62 @@
 import React, { useState } from 'react';
+import { createTask } from '../api/tasks';
 
-const TaskForm = () => {
+const TaskForm = ({ onTaskCreated }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     priority: 'medium',
-    dueDate: '',
-    category: ''
+    dueDate: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // TODO: Implement API call to create task
+    
+    if (!formData.title.trim()) {
+      setError('Task title is required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(false);
+
+      const taskData = {
+        title: formData.title.trim(),
+        description: formData.description.trim() || undefined,
+        priority: formData.priority,
+        dueDate: formData.dueDate || undefined
+      };
+
+      const response = await createTask(taskData);
+      
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        priority: 'medium',
+        dueDate: ''
+      });
+      
+      setSuccess(true);
+      
+      // Notify parent component to refresh task list
+      if (onTaskCreated) {
+        onTaskCreated(response.data);
+      }
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(false), 3000);
+
+    } catch (err) {
+      setError(err.message || 'Failed to create task');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -20,6 +64,8 @@ const TaskForm = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
   return (
@@ -43,7 +89,7 @@ const TaskForm = () => {
           <div className="space-y-4">
             <div>
               <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
-                Task Title
+                Task Title *
               </label>
               <input
                 type="text"
@@ -52,8 +98,9 @@ const TaskForm = () => {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="What needs to be done?"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-gray-50/50"
-                disabled
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                disabled={loading}
+                required
               />
             </div>
             
@@ -68,8 +115,8 @@ const TaskForm = () => {
                 onChange={handleChange}
                 placeholder="Add more details about this task..."
                 rows="3"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-gray-50/50 resize-none"
-                disabled
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 resize-none"
+                disabled={loading}
               />
             </div>
             
@@ -83,8 +130,8 @@ const TaskForm = () => {
                   name="priority"
                   value={formData.priority}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-gray-50/50"
-                  disabled
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                  disabled={loading}
                 >
                   <option value="low">🟢 Low</option>
                   <option value="medium">🟡 Medium</option>
@@ -102,61 +149,60 @@ const TaskForm = () => {
                   name="dueDate"
                   value={formData.dueDate}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-gray-50/50"
-                  disabled
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                  disabled={loading}
                 />
               </div>
             </div>
-
-            <div>
-              <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-2">
-                Category
-              </label>
-              <select
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-gray-50/50"
-                disabled
-              >
-                <option value="">Select Category</option>
-                <option value="work">💼 Work</option>
-                <option value="personal">🏠 Personal</option>
-                <option value="shopping">🛒 Shopping</option>
-                <option value="health">🏥 Health</option>
-                <option value="learning">📚 Learning</option>
-                <option value="other">📝 Other</option>
-              </select>
-            </div>
           </div>
           
-          {/* API Info Card */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6">
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-sm">🔗</span>
-              </div>
-              <div>
-                <h4 className="font-semibold text-blue-800 mb-1">API Integration Ready</h4>
-                <p className="text-blue-700 text-sm mb-2">
-                  This form is prepared for backend integration
-                </p>
-                <div className="text-xs text-blue-600 bg-blue-100 px-3 py-1 rounded-full inline-block">
-                  Endpoint: {import.meta.env.VITE_API_BASE || 'http://localhost:4000/api'}/tasks
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">❌</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-red-800 text-sm">Error</h4>
+                  <p className="text-red-700 text-sm">{error}</p>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Success Message */}
+          {success && (
+            <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">✅</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-green-800 text-sm">Success!</h4>
+                  <p className="text-green-700 text-sm">Task created successfully</p>
+                </div>
+              </div>
+            </div>
+          )}
           
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-500/30 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
-            disabled
+            disabled={loading || !formData.title.trim()}
           >
             <span className="flex items-center justify-center space-x-2">
-              <span>✨</span>
-              <span>Add Task (Coming Soon)</span>
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Creating...</span>
+                </>
+              ) : (
+                <>
+                  <span>✨</span>
+                  <span>Add Task</span>
+                </>
+              )}
             </span>
           </button>
         </form>
