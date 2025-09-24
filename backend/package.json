@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --setupFilesAfterEnv=./tests/setup.js",
+    "test:watch": "jest --watch --setupFilesAfterEnv=./tests/setup.js",
+    "test:coverage": "jest --coverage --setupFilesAfterEnv=./tests/setup.js"
   },
   "keywords": [
     "task-manager",
@@ -26,6 +28,9 @@
     "morgan": "^1.10.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "jest": "^30.1.3",
+    "mongodb-memory-server": "^10.2.1",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
   }
 }

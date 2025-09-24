@@ -1,0 +1,139 @@
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const mongoose = require('mongoose');
+
+// Import routes
+const taskRoutes = require('../routes/tasks');
+
+// Import middleware
+const { errorHandler, notFound } = require('../middleware/errorHandler');
+
+const app = express();
+
+// Middleware
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}));
+app.use(morgan('combined'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use('/api/tasks', taskRoutes);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    time: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+// Root endpoint with API documentation
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Task Manager API',
+    version: '1.0.0',
+    status: 'running',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    documentation: {
+      description: 'A RESTful API for managing tasks with validation and error handling',
+      baseUrl: `http://localhost:${process.env.PORT || 4000}`,
+      endpoints: {
+        tasks: {
+          'GET /api/tasks': {
+            description: 'List all tasks with optional filtering',
+            queryParams: {
+              completed: 'boolean - Filter by completion status',
+              priority: 'string - Filter by priority (low, medium, high)',
+              sortBy: 'string - Sort field (default: createdAt)',
+              sortOrder: 'string - Sort order (asc, desc)'
+            },
+            example: '/api/tasks?completed=false&priority=high&sortBy=dueDate&sortOrder=asc'
+          },
+          'GET /api/tasks/:id': {
+            description: 'Get a single task by ID',
+            example: '/api/tasks/507f1f77bcf86cd799439011'
+          },
+          'POST /api/tasks': {
+            description: 'Create a new task',
+            requiredFields: ['title'],
+            optionalFields: ['description', 'priority', 'dueDate'],
+            validation: {
+              title: 'Required, 1-200 characters',
+              description: 'Optional, max 1000 characters',
+              priority: 'Optional, must be: low, medium, high',
+              dueDate: 'Optional, must be today or future date (ISO 8601)'
+            },
+            example: {
+              title: 'Complete project',
+              description: 'Finish the task manager project',
+              priority: 'high',
+              dueDate: '2024-12-31'
+            }
+          },
+          'PUT /api/tasks/:id': {
+            description: 'Update an existing task',
+            fields: 'All fields optional for updates',
+            validation: 'Same validation rules as POST',
+            example: {
+              completed: true,
+              priority: 'medium'
+            }
+          },
+          'DELETE /api/tasks/:id': {
+            description: 'Delete a task by ID',
+            example: '/api/tasks/507f1f77bcf86cd799439011'
+          }
+        },
+        system: {
+          'GET /health': {
+            description: 'Health check endpoint',
+            returns: 'Server status and database connection status'
+          },
+          'GET /': {
+            description: 'API documentation (this endpoint)'
+          }
+        }
+      },
+      errorFormat: {
+        error: 'Short error message',
+        details: {
+          message: 'Detailed error description',
+          type: 'Error type (ValidationError, NotFoundError, etc.)',
+          validationErrors: 'Array of validation errors (if applicable)'
+        }
+      },
+      examples: {
+        successResponse: {
+          success: true,
+          data: { /* task object */ },
+          message: 'Operation completed successfully'
+        },
+        errorResponse: {
+          error: 'Validation failed',
+          details: {
+            message: 'Please check the provided data and try again',
+            type: 'ValidationError',
+            validationErrors: [
+              {
+                field: 'title',
+                message: 'Title is required',
+                value: ''
+              }
+            ]
+          }
+        }
+      }
+    }
+  });
+});
+
+// Error handling middleware (must be after routes)
+app.use(notFound);
+app.use(errorHandler);
+
+module.exports = app;
