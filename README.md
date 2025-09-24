@@ -132,6 +132,95 @@ npm run test:frontend  # Run frontend tests
 npm run start:frontend # Start frontend preview server
 ```
 
+## 📚 API Documentation
+
+### Swagger UI (Development)
+When running the backend in development mode, you can access the interactive API documentation:
+
+```bash
+# Start the backend server
+npm run dev:backend
+
+# Visit the Swagger UI
+# http://localhost:4000/api-docs
+```
+
+The Swagger UI provides:
+- 📖 Complete API documentation
+- 🧪 Interactive endpoint testing
+- 📋 Request/response examples
+- 🔍 Schema validation details
+
+### OpenAPI Specification
+The complete API specification is available in `backend/openapi.yml`:
+- **OpenAPI 3.0** compliant
+- **Comprehensive schemas** for all endpoints
+- **Detailed examples** for requests and responses
+- **Error handling** documentation
+
+### Postman Collection
+Import the pre-configured Postman collection for easy API testing:
+
+1. **Download**: `backend/postman-collection.json`
+2. **Import into Postman**:
+   - Open Postman
+   - Click "Import" button
+   - Select the `postman-collection.json` file
+3. **Configure Environment**:
+   - Set `baseUrl` variable to `http://localhost:4000/api`
+   - Update `taskId` variable with actual task IDs
+
+#### Collection Features:
+- ✅ **All CRUD operations** with examples
+- 🔍 **Filtering and sorting** examples
+- ❌ **Error handling** scenarios
+- 📊 **Health check** endpoints
+- 🎯 **Pre-configured variables** for easy testing
+
+### API Endpoints Overview
+
+#### Tasks Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/tasks` | List all tasks (with filtering/sorting) |
+| `GET` | `/api/tasks/:id` | Get single task by ID |
+| `POST` | `/api/tasks` | Create new task |
+| `PUT` | `/api/tasks/:id` | Update existing task |
+| `DELETE` | `/api/tasks/:id` | Delete task by ID |
+
+#### System Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Health check and database status |
+| `GET` | `/` | API documentation and info |
+| `GET` | `/api-docs` | Swagger UI (development only) |
+
+### Example API Usage
+
+#### Create a Task
+```bash
+curl -X POST http://localhost:4000/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Complete project documentation",
+    "description": "Write comprehensive API docs",
+    "priority": "high",
+    "dueDate": "2024-01-15T00:00:00.000Z"
+  }'
+```
+
+#### Get Tasks with Filtering
+```bash
+curl "http://localhost:4000/api/tasks?completed=false&priority=high&sortBy=dueDate&sortOrder=asc"
+```
+
+#### Update Task
+```bash
+curl -X PUT http://localhost:4000/api/tasks/507f1f77bcf86cd799439011 \
+  -H "Content-Type: application/json" \
+  -d '{"completed": true}'
+```
+
 ## 🧪 Testing
 
 ### Run All Tests

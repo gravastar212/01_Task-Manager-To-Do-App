@@ -2,6 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const path = require('path');
 require('dotenv').config();
 
 // Import database connection
@@ -12,6 +15,9 @@ const taskRoutes = require('../routes/tasks');
 
 // Import middleware
 const { errorHandler, notFound } = require('../middleware/errorHandler');
+
+// Load OpenAPI specification
+const swaggerDocument = YAML.load(path.join(__dirname, '../openapi.yml'));
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -24,6 +30,14 @@ app.use(cors({
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger UI (only in development)
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Task Manager API Documentation'
+  }));
+}
 
 // Routes
 app.use('/api/tasks', taskRoutes);
@@ -153,6 +167,9 @@ const startServer = async () => {
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
       console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
       console.log(`🗄️ Database: ${process.env.MONGODB_URI ? 'Configured' : 'Not configured'}`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+      }
       console.log(`📋 API Endpoints:`);
       console.log(`   GET    /api/tasks     - List all tasks`);
       console.log(`   GET    /api/tasks/:id  - Get single task`);
