@@ -22,9 +22,10 @@ describe('Task API Endpoints', () => {
         .get('/api/tasks')
         .expect(200);
 
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(1);
-      expect(response.body[0].title).toBe('Test Task');
+      expect(response.body.success).toBe(true);
+      expect(response.body.count).toBe(1);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].title).toBe('Test Task');
     });
 
     it('should filter tasks by completion status', async () => {
@@ -38,9 +39,9 @@ describe('Task API Endpoints', () => {
         .get('/api/tasks?completed=false')
         .expect(200);
 
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(1);
-      expect(response.body[0].completed).toBe(false);
+      expect(response.body.success).toBe(true);
+      expect(response.body.count).toBe(1);
+      expect(response.body.data[0].completed).toBe(false);
     });
 
     it('should filter tasks by priority', async () => {
@@ -48,9 +49,9 @@ describe('Task API Endpoints', () => {
         .get('/api/tasks?priority=high')
         .expect(200);
 
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(1);
-      expect(response.body[0].priority).toBe('high');
+      expect(response.body.success).toBe(true);
+      expect(response.body.count).toBe(1);
+      expect(response.body.data[0].priority).toBe('high');
     });
 
     it('should sort tasks by creation date', async () => {
@@ -64,9 +65,9 @@ describe('Task API Endpoints', () => {
         .get('/api/tasks?sortBy=createdAt&sortOrder=desc')
         .expect(200);
 
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(2);
-      expect(response.body[0].title).toBe('Second Task'); // Most recent first
+      expect(response.body.success).toBe(true);
+      expect(response.body.count).toBe(2);
+      expect(response.body.data[0].title).toBe('Second Task'); // Most recent first
     });
   });
 
@@ -76,9 +77,10 @@ describe('Task API Endpoints', () => {
         .get(`/api/tasks/${testTask._id}`)
         .expect(200);
 
-      expect(response.body.title).toBe('Test Task');
-      expect(response.body.description).toBe('This is a test task');
-      expect(response.body.priority).toBe('high');
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe('Test Task');
+      expect(response.body.data.description).toBe('This is a test task');
+      expect(response.body.data.priority).toBe('high');
     });
 
     it('should return 404 for non-existent task', async () => {
@@ -115,10 +117,12 @@ describe('Task API Endpoints', () => {
         .send(taskData)
         .expect(201);
 
-      expect(response.body.title).toBe('New Task');
-      expect(response.body.description).toBe('A new task description');
-      expect(response.body.priority).toBe('medium');
-      expect(response.body.completed).toBe(false);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('Task created successfully');
+      expect(response.body.data.title).toBe('New Task');
+      expect(response.body.data.description).toBe('A new task description');
+      expect(response.body.data.priority).toBe('medium');
+      expect(response.body.data.completed).toBe(false);
     });
 
     it('should create a task with only required fields', async () => {
@@ -131,9 +135,10 @@ describe('Task API Endpoints', () => {
         .send(taskData)
         .expect(201);
 
-      expect(response.body.title).toBe('Minimal Task');
-      expect(response.body.priority).toBe('medium'); // Default value
-      expect(response.body.completed).toBe(false); // Default value
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe('Minimal Task');
+      expect(response.body.data.priority).toBe('medium'); // Default value
+      expect(response.body.data.completed).toBe(false); // Default value
     });
 
     it('should fail validation for empty title', async () => {
@@ -214,8 +219,11 @@ describe('Task API Endpoints', () => {
         .send(updateData)
         .expect(200);
 
-      expect(response.body.title).toBe('Updated Task');
-      expect(response.body.completed).toBe(true);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('Task updated successfully');
+      expect(response.body.data.title).toBe('Updated Task');
+      expect(response.body.data.completed).toBe(true);
+      expect(response.body.data.priority).toBe('low');
     });
 
     it('should update only provided fields', async () => {
@@ -228,9 +236,10 @@ describe('Task API Endpoints', () => {
         .send(updateData)
         .expect(200);
 
-      expect(response.body.title).toBe('Test Task'); // Unchanged
-      expect(response.body.completed).toBe(true); // Updated
-      expect(response.body.priority).toBe('high'); // Unchanged
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe('Test Task'); // Unchanged
+      expect(response.body.data.completed).toBe(true); // Updated
+      expect(response.body.data.priority).toBe('high'); // Unchanged
     });
 
     it('should return 404 for non-existent task', async () => {
