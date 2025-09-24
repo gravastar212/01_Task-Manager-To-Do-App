@@ -29,13 +29,6 @@ export const tasksAPI = {
       }
       
       const data = await response.json();
-      
-      // Guard against unexpected responses - ensure we always return an array
-      if (!Array.isArray(data)) {
-        console.warn('API returned non-array response for getTasks:', data);
-        return []; // fallback to empty array
-      }
-      
       return data;
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -53,13 +46,6 @@ export const tasksAPI = {
       }
       
       const data = await response.json();
-      
-      // Guard against unexpected responses - ensure we get a valid task object
-      if (!data || typeof data !== 'object') {
-        console.warn('API returned invalid task response:', data);
-        throw new Error('Invalid task data received from server');
-      }
-      
       return data;
     } catch (error) {
       console.error('Error fetching task:', error);
@@ -84,13 +70,6 @@ export const tasksAPI = {
       }
       
       const data = await response.json();
-      
-      // Guard against unexpected responses - ensure we get a valid task object
-      if (!data || typeof data !== 'object') {
-        console.warn('API returned invalid task response for createTask:', data);
-        throw new Error('Invalid task data received from server');
-      }
-      
       return data;
     } catch (error) {
       console.error('Error creating task:', error);
@@ -115,13 +94,6 @@ export const tasksAPI = {
       }
       
       const data = await response.json();
-      
-      // Guard against unexpected responses - ensure we get a valid task object
-      if (!data || typeof data !== 'object') {
-        console.warn('API returned invalid task response for updateTask:', data);
-        throw new Error('Invalid task data received from server');
-      }
-      
       return data;
     } catch (error) {
       console.error('Error updating task:', error);
