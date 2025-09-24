@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://gravastar212.github.io/01_Task-Manager-To-Do-App",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
@@ -10,7 +11,8 @@
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "react": "^19.1.1",
@@ -32,6 +34,7 @@
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "gh-pages": "^6.3.0",
     "globals": "^16.4.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.1.3",
