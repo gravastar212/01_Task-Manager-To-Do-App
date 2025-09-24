@@ -221,6 +221,164 @@ curl -X PUT http://localhost:4000/api/tasks/507f1f77bcf86cd799439011 \
   -d '{"completed": true}'
 ```
 
+## 🚀 Deployment
+
+### Frontend (Netlify)
+
+#### Quick Deploy
+1. **Connect Repository**
+   - Go to [Netlify Dashboard](https://app.netlify.com)
+   - Click "New site from Git"
+   - Connect your GitHub repository
+
+2. **Build Settings**
+   - **Build command**: `npm run build`
+   - **Publish directory**: `dist`
+   - **Root directory**: `frontend`
+
+3. **Environment Variables**
+   Set these in Netlify dashboard under "Site settings" → "Environment variables":
+   ```
+   VITE_API_BASE=https://your-backend-app.onrender.com/api
+   ```
+
+4. **Deploy**
+   - Click "Deploy site"
+   - Netlify will automatically build and deploy your app
+
+#### Configuration File
+The project includes `frontend/netlify.toml` with optimized settings:
+- Build command and publish directory
+- Security headers
+- Asset caching
+- Redirects for SPA routing
+
+### Backend (Render)
+
+#### Quick Deploy
+1. **Connect Repository**
+   - Go to [Render Dashboard](https://dashboard.render.com)
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+
+2. **Service Configuration**
+   - **Name**: `task-manager-backend`
+   - **Root Directory**: `backend`
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+
+3. **Environment Variables**
+   Set these in Render dashboard under "Environment":
+   ```
+   NODE_ENV=production
+   PORT=10000
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/taskmanager
+   FRONTEND_URL=https://your-frontend-app.netlify.app
+   ```
+
+4. **Deploy**
+   - Click "Create Web Service"
+   - Render will automatically build and deploy your app
+
+#### Detailed Instructions
+See `backend/README.deploy.md` for comprehensive deployment guide including:
+- Database setup (MongoDB Atlas)
+- Advanced configuration
+- Troubleshooting
+- Monitoring and logging
+
+### Environment Variables Setup
+
+#### Frontend (Netlify)
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_BASE` | Backend API URL | `https://your-backend.onrender.com/api` |
+| `VITE_APP_NAME` | Application name | `Task Manager` |
+
+#### Backend (Render)
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `NODE_ENV` | Environment | `production` |
+| `PORT` | Server port | `10000` |
+| `MONGODB_URI` | Database connection | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
+| `FRONTEND_URL` | Frontend URL for CORS | `https://your-app.netlify.app` |
+
+### CI/CD Pipeline
+
+#### Automatic Deployments
+- **Frontend**: Push to `main` branch triggers Netlify build
+- **Backend**: Push to `main` branch triggers Render deployment
+
+#### Environment Configuration
+1. **Netlify Environment Variables**:
+   - Go to Site Settings → Environment Variables
+   - Add `VITE_API_BASE` with your Render backend URL
+   - Redeploy after adding variables
+
+2. **Render Environment Variables**:
+   - Go to Service Settings → Environment
+   - Add all required variables
+   - Service restarts automatically
+
+#### Database Setup
+1. **MongoDB Atlas**:
+   - Create free cluster at [MongoDB Atlas](https://www.mongodb.com/atlas)
+   - Create database user with read/write permissions
+   - Whitelist Render IP addresses
+   - Copy connection string to `MONGODB_URI`
+
+2. **Render MongoDB** (Alternative):
+   - Create MongoDB service in Render dashboard
+   - Use provided connection string
+
+### Deployment Checklist
+
+#### Pre-Deployment
+- [ ] Test locally with production environment variables
+- [ ] Ensure all tests pass (`npm test`)
+- [ ] Verify build commands work (`npm run build`)
+- [ ] Check environment variable examples in `.env.example` files
+
+#### Frontend Deployment
+- [ ] Connect GitHub repository to Netlify
+- [ ] Set build command: `npm run build`
+- [ ] Set publish directory: `dist`
+- [ ] Set root directory: `frontend`
+- [ ] Add `VITE_API_BASE` environment variable
+- [ ] Deploy and test
+
+#### Backend Deployment
+- [ ] Connect GitHub repository to Render
+- [ ] Set root directory: `backend`
+- [ ] Set build command: `npm install`
+- [ ] Set start command: `npm start`
+- [ ] Add all required environment variables
+- [ ] Set up MongoDB Atlas or Render MongoDB
+- [ ] Deploy and test health endpoints
+
+#### Post-Deployment
+- [ ] Test frontend-backend communication
+- [ ] Verify CORS configuration
+- [ ] Check health endpoints (`/health`)
+- [ ] Test API functionality
+- [ ] Monitor logs for errors
+
+### Deployment Helper Script
+
+Run the included deployment helper script to verify your configuration:
+
+```bash
+# From project root
+bash deploy-check.sh
+```
+
+This script will:
+- ✅ Verify all configuration files exist
+- 🔨 Test build commands locally
+- 📋 Show deployment checklist
+- 📚 Display deployment instructions
+
 ## 🧪 Testing
 
 ### Run All Tests
