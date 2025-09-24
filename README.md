@@ -39,58 +39,199 @@ A modern, full-stack task management application built with React, Node.js, and 
 
 ### Local Development
 
-#### Quick Start (Recommended)
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd task-manager-to-do-app
-   ```
+#### Prerequisites
+- **Node.js**: Version 18.x or 20.x (recommended: 20.x)
+- **npm**: Version 8.x or higher
+- **MongoDB**: Local installation or MongoDB Atlas account
+- **Git**: For version control
 
-2. **Install all dependencies**
-   ```bash
-   npm run install:all
-   ```
+#### Step-by-Step Setup
 
-3. **Set up environment variables**
-   ```bash
-   # Backend
-   cp backend/.env.example backend/.env
-   # Edit backend/.env with your MongoDB connection string
-   
-   # Frontend
-   cp frontend/.env.example frontend/.env
-   # Edit frontend/.env with your API base URL
-   ```
+##### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd task-manager-to-do-app
+```
 
-4. **Start both frontend and backend**
-   ```bash
-   npm run dev
-   ```
+##### 2. Install Dependencies
+```bash
+# Install all dependencies (root, backend, frontend)
+npm run install:all
 
-5. **Access the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:4000
+# Or install individually:
+npm install                    # Root dependencies
+cd backend && npm install     # Backend dependencies
+cd ../frontend && npm install # Frontend dependencies
+```
 
-#### Individual Setup (Alternative)
-If you prefer to run frontend and backend separately:
+##### 3. Environment Configuration
 
-1. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   cp .env.example .env
-   # Edit .env with your MongoDB connection string and other config
-   npm run dev
-   ```
+**Backend Environment Variables**
+```bash
+# Copy environment template
+cp backend/.env.example backend/.env
 
-2. **Frontend Setup** (in a new terminal)
-   ```bash
-   cd frontend
-   npm install
-   cp .env.example .env
-   # Edit .env with your API base URL
-   npm run dev
-   ```
+# Edit backend/.env with your configuration
+```
+
+**Required Backend Variables:**
+```env
+# Server Configuration
+PORT=4000
+
+# Database Configuration (choose one)
+# Option 1: Local MongoDB
+MONGODB_URI=mongodb://127.0.0.1:27017/taskmanager
+
+# Option 2: MongoDB Atlas (recommended)
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/taskmanager
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:5173
+
+# Environment
+NODE_ENV=development
+```
+
+**Frontend Environment Variables**
+```bash
+# Copy environment template
+cp frontend/.env.example frontend/.env
+
+# Edit frontend/.env with your configuration
+```
+
+**Required Frontend Variables:**
+```env
+# API Configuration
+VITE_API_BASE=http://localhost:4000/api
+
+# App Configuration
+VITE_APP_NAME=Task Manager
+VITE_APP_VERSION=1.0.0
+```
+
+##### 4. Database Setup
+
+**Option A: Local MongoDB**
+```bash
+# Install MongoDB locally (macOS with Homebrew)
+brew install mongodb-community
+
+# Start MongoDB service
+brew services start mongodb-community
+
+# Or start manually
+mongod --config /usr/local/etc/mongod.conf
+```
+
+**Option B: MongoDB Atlas (Recommended)**
+1. Go to [MongoDB Atlas](https://www.mongodb.com/atlas)
+2. Create a free account and cluster
+3. Create a database user with read/write permissions
+4. Whitelist your IP address (or use `0.0.0.0/0` for all)
+5. Get connection string and update `MONGODB_URI` in `.env`
+
+##### 5. Start Development Servers
+
+**Quick Start (Both Services)**
+```bash
+# Start both frontend and backend concurrently
+npm run dev
+```
+
+**Individual Services**
+```bash
+# Terminal 1: Backend
+npm run dev:backend
+# Server runs on http://localhost:4000
+
+# Terminal 2: Frontend  
+npm run dev:frontend
+# App runs on http://localhost:5173
+```
+
+##### 6. Verify Setup
+- **Frontend**: Visit http://localhost:5173
+- **Backend API**: Visit http://localhost:4000/health
+- **API Documentation**: Visit http://localhost:4000/api-docs (Swagger UI)
+
+#### Development Workflow
+
+##### Daily Development
+```bash
+# Start development
+npm run dev
+
+# Run tests
+npm test
+
+# Check deployment readiness
+bash deploy-check.sh
+```
+
+##### Environment Management
+```bash
+# Switch between environments
+NODE_ENV=development npm run dev:backend
+NODE_ENV=production npm start
+
+# Test with production environment
+NODE_ENV=production npm test
+```
+
+#### Database Seeding (Optional)
+
+For manual testing with sample data, use the included seed script:
+
+```bash
+# Seed database with sample tasks
+cd backend && npm run seed
+```
+
+The seed script will:
+- ✅ Connect to your database
+- 🗑️ Clear existing tasks
+- 🌱 Insert 6 sample tasks with different priorities and due dates
+- 📋 Display the seeded tasks
+
+**Sample Tasks Include:**
+- High priority tasks with due dates
+- Completed and pending tasks
+- Different priority levels (low, medium, high)
+- Realistic task descriptions
+
+**Manual Seeding:**
+```bash
+# Alternative: Run seed script directly
+cd backend && node seed.js
+```
+
+#### Production Setup
+
+##### Local Production Testing
+```bash
+# Build frontend
+npm run build:frontend
+
+# Start backend in production mode
+NODE_ENV=production npm run start:backend
+
+# Serve frontend (in another terminal)
+cd frontend && npm run preview
+```
+
+##### Production Environment Variables
+```env
+# Backend Production
+NODE_ENV=production
+PORT=10000
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/taskmanager
+FRONTEND_URL=https://your-app.netlify.app
+
+# Frontend Production
+VITE_API_BASE=https://your-backend.onrender.com/api
+```
 
 ### Environment Variables
 
@@ -427,6 +568,181 @@ npm run test:watch    # Run tests in watch mode
 npm run test:coverage # Run tests with coverage report
 ```
 
+## 🎨 Style Guide
+
+### Code Style
+
+#### JavaScript/Node.js (Backend)
+- **ESLint**: Follow standard JavaScript style
+- **Indentation**: 2 spaces (no tabs)
+- **Quotes**: Single quotes for strings
+- **Semicolons**: Always use semicolons
+- **Naming**: camelCase for variables and functions, PascalCase for classes
+
+```javascript
+// Good
+const taskController = require('./controllers/taskController');
+const Task = require('../models/Task');
+
+function createTask(req, res, next) {
+  const { title, description } = req.body;
+  // ...
+}
+
+// Bad
+const task_controller = require('./controllers/taskController');
+const task = require('../models/task');
+
+function create_task(req, res, next) {
+  const {title,description} = req.body;
+  // ...
+}
+```
+
+#### React/JSX (Frontend)
+- **Functional Components**: Use function declarations or arrow functions
+- **Hooks**: Use hooks for state and side effects
+- **Props**: Destructure props in function parameters
+- **Event Handlers**: Use descriptive names with `handle` prefix
+
+```jsx
+// Good
+const TaskForm = ({ onTaskCreated }) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    priority: 'medium'
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // ...
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* ... */}
+    </form>
+  );
+};
+
+// Bad
+const TaskForm = (props) => {
+  const [formData, setFormData] = useState({});
+
+  const submit = async (e) => {
+    // ...
+  };
+
+  return (
+    <form onSubmit={submit}>
+      {/* ... */}
+    </form>
+  );
+};
+```
+
+### File Organization
+
+#### Backend Structure
+```
+backend/
+├── src/
+│   ├── index.js          # Main server file
+│   └── db.js             # Database connection
+├── controllers/          # Route handlers
+├── models/              # Mongoose models
+├── routes/              # Express routes
+├── middleware/          # Custom middleware
+├── tests/               # Test files
+└── package.json
+```
+
+#### Frontend Structure
+```
+frontend/
+├── src/
+│   ├── components/      # React components
+│   ├── api/            # API utilities
+│   ├── App.jsx         # Main app component
+│   └── main.jsx        # Entry point
+├── public/             # Static assets
+└── package.json
+```
+
+### Git Commit Messages
+
+#### Format
+```
+type(scope): description
+
+[optional body]
+
+[optional footer]
+```
+
+#### Types
+- **feat**: New feature
+- **fix**: Bug fix
+- **docs**: Documentation changes
+- **style**: Code style changes (formatting, etc.)
+- **refactor**: Code refactoring
+- **test**: Adding or updating tests
+- **chore**: Maintenance tasks
+
+#### Examples
+```bash
+feat(api): add task filtering by priority
+fix(frontend): resolve form validation issue
+docs(readme): update setup instructions
+test(backend): add error handling tests
+chore(deps): update dependencies
+```
+
+### Component Guidelines
+
+#### React Components
+- **Single Responsibility**: One component, one purpose
+- **Props Validation**: Use PropTypes or TypeScript
+- **Error Boundaries**: Handle component errors gracefully
+- **Accessibility**: Include proper ARIA labels and keyboard navigation
+
+#### API Endpoints
+- **RESTful Design**: Follow REST conventions
+- **Error Handling**: Consistent error response format
+- **Validation**: Validate all input data
+- **Documentation**: Document all endpoints with OpenAPI
+
+### Testing Guidelines
+
+#### Test Structure
+- **Arrange**: Set up test data and conditions
+- **Act**: Execute the code being tested
+- **Assert**: Verify the expected outcome
+
+#### Test Naming
+```javascript
+// Good
+describe('Task API Endpoints', () => {
+  describe('GET /api/tasks', () => {
+    it('should fetch all tasks', async () => {
+      // test implementation
+    });
+    
+    it('should filter tasks by completion status', async () => {
+      // test implementation
+    });
+  });
+});
+
+// Bad
+describe('API', () => {
+  it('works', () => {
+    // test implementation
+  });
+});
+```
+
 ## 🚀 Deployment
 
 ### Frontend (Netlify)
@@ -455,11 +771,38 @@ npm run test:coverage # Run tests with coverage report
 
 ## 🤝 Contributing
 
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for detailed information on:
+
+- **Development Setup**: How to set up your development environment
+- **Branch Naming**: Our branch naming conventions
+- **Pull Request Process**: Step-by-step PR checklist
+- **Code Style**: Our coding standards and guidelines
+- **Testing**: How to write and run tests
+- **Commit Messages**: Conventional commit format
+
+### Quick Start for Contributors
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Make your changes following our style guide
+4. Add tests for new functionality
+5. Run tests (`npm test`)
+6. Commit with conventional format (`git commit -m 'feat: add amazing feature'`)
+7. Push and create a Pull Request
+
+### Development Commands
+```bash
+# Setup
+npm run install:all
+
+# Development
+npm run dev
+
+# Testing
+npm test
+
+# Deployment check
+bash deploy-check.sh
+```
 
 ## 📄 License
 
