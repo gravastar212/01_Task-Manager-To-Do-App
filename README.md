@@ -306,6 +306,22 @@ See `backend/README.deploy.md` for comprehensive deployment guide including:
 
 ### CI/CD Pipeline
 
+#### Continuous Integration (GitHub Actions)
+The project includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that:
+
+- ✅ **Runs on**: Push and pull requests to `main` branch
+- ✅ **Node.js Versions**: Tests on Node.js 18.x and 20.x
+- ✅ **Test Coverage**: Runs all backend and frontend tests
+- ✅ **Dependency Installation**: Installs dependencies for all components
+- ✅ **Fail Fast**: Stops deployment if any tests fail
+
+#### Workflow Steps
+1. **Checkout Code**: Gets the latest code from repository
+2. **Setup Node.js**: Configures Node.js with npm caching
+3. **Install Dependencies**: Installs root, backend, and frontend dependencies
+4. **Run Tests**: Executes test suites for backend and frontend
+5. **Verify Integration**: Runs root-level test command
+
 #### Automatic Deployments
 - **Frontend**: Push to `main` branch triggers Netlify build
 - **Backend**: Push to `main` branch triggers Render deployment
@@ -380,6 +396,13 @@ This script will:
 - 📚 Display deployment instructions
 
 ## 🧪 Testing
+
+### Continuous Integration
+Tests run automatically on every push and pull request via GitHub Actions:
+- **Backend Tests**: 36 tests covering all API endpoints and error handling
+- **Frontend Tests**: 8 tests covering component rendering and functionality
+- **Node.js Versions**: Tests run on Node.js 18.x and 20.x
+- **Status Badge**: ![CI](https://github.com/your-username/task-manager/workflows/CI/badge.svg)
 
 ### Run All Tests
 ```bash
