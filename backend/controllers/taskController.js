@@ -20,11 +20,8 @@ const getAllTasks = async (req, res, next) => {
 
     const tasks = await Task.find(filter).sort(sort);
     
-    res.status(200).json({
-      success: true,
-      count: tasks.length,
-      data: tasks
-    });
+    // Always return an array, even if empty
+    res.status(200).json(tasks);
   } catch (error) {
     next(error);
   }
@@ -45,10 +42,7 @@ const getTask = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      data: task
-    });
+    res.status(200).json(task);
   } catch (error) {
     next(error);
   }
@@ -66,11 +60,7 @@ const createTask = async (req, res, next) => {
       dueDate: dueDate ? new Date(dueDate) : null
     });
 
-    res.status(201).json({
-      success: true,
-      message: 'Task created successfully',
-      data: task
-    });
+    res.status(201).json(task);
   } catch (error) {
     next(error);
   }
@@ -104,11 +94,7 @@ const updateTask = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Task updated successfully',
-      data: task
-    });
+    res.status(200).json(task);
   } catch (error) {
     next(error);
   }

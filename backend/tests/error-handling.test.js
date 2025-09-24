@@ -156,8 +156,8 @@ describe('Error Handling and Edge Cases', () => {
         .expect(200);
 
       // Should return all tasks since filters don't match
-      expect(response.body.success).toBe(true);
-      expect(response.body.count).toBe(0); // No tasks match the invalid filters
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(0); // No tasks match the invalid filters
     });
 
     it('should handle empty query parameters', async () => {
@@ -165,8 +165,8 @@ describe('Error Handling and Edge Cases', () => {
         .get('/api/tasks?completed=&priority=')
         .expect(200);
 
-      expect(response.body.success).toBe(true);
-      expect(response.body.count).toBe(2); // Two tasks created in beforeEach
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(2); // Two tasks created in beforeEach
     });
 
     it('should handle multiple query parameters', async () => {
@@ -174,10 +174,10 @@ describe('Error Handling and Edge Cases', () => {
         .get('/api/tasks?completed=false&priority=high')
         .expect(200);
 
-      expect(response.body.success).toBe(true);
-      expect(response.body.count).toBe(1); // One task matches both filters
-      expect(response.body.data[0].priority).toBe('high');
-      expect(response.body.data[0].completed).toBe(false);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(1); // One task matches both filters
+      expect(response.body[0].priority).toBe('high');
+      expect(response.body[0].completed).toBe(false);
     });
   });
 
@@ -225,9 +225,8 @@ describe('Error Handling and Edge Cases', () => {
         .send(taskData)
         .expect(201);
 
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.title).toBe(taskData.title);
-      expect(response.body.data.description).toBe(taskData.description);
+      expect(response.body.title).toBe(taskData.title);
+      expect(response.body.description).toBe(taskData.description);
     });
   });
 });
