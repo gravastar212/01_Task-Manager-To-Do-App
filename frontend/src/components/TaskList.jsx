@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getTasks } from '../api/tasks';
+import TaskItem from './TaskItem';
 
 const TaskList = ({ refreshTrigger, onTaskCountChange }) => {
   const [tasks, setTasks] = useState([]);
@@ -34,6 +35,45 @@ const TaskList = ({ refreshTrigger, onTaskCountChange }) => {
   useEffect(() => {
     fetchTasks();
   }, [refreshTrigger]);
+
+  const handleTaskUpdated = (updatedTask) => {
+    // Update the task in the local state
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task._id === updatedTask._id ? updatedTask : task
+      )
+    );
+    
+    // Update task counts
+    if (onTaskCountChange) {
+      const completedCount = tasks.filter(task => 
+        task._id === updatedTask._id ? updatedTask.completed : task.completed
+      ).length;
+      const pendingCount = tasks.length - completedCount;
+      onTaskCountChange({
+        total: tasks.length,
+        completed: completedCount,
+        pending: pendingCount
+      });
+    }
+  };
+
+  const handleTaskDeleted = (deletedTaskId) => {
+    // Remove the task from local state
+    setTasks(prevTasks => prevTasks.filter(task => task._id !== deletedTaskId));
+    
+    // Update task counts
+    if (onTaskCountChange) {
+      const remainingTasks = tasks.filter(task => task._id !== deletedTaskId);
+      const completedCount = remainingTasks.filter(task => task.completed).length;
+      const pendingCount = remainingTasks.length - completedCount;
+      onTaskCountChange({
+        total: remainingTasks.length,
+        completed: completedCount,
+        pending: pendingCount
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -167,42 +207,14 @@ const TaskList = ({ refreshTrigger, onTaskCountChange }) => {
               <p className="text-gray-500 text-sm">Create your first task using the form on the left!</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {tasks.map(task => (
-                <div key={task._id} className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3 flex-1">
-                      <div className={`w-4 h-4 rounded-full mt-1 ${
-                        task.completed ? 'bg-green-500' : 'bg-gray-300'
-                      }`}></div>
-                      <div className="flex-1">
-                        <h4 className={`font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                          {task.title}
-                        </h4>
-                        {task.description && (
-                          <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-                        )}
-                        <div className="flex items-center space-x-2 mt-2">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
-                            {task.priority} priority
-                          </span>
-                          {task.dueDate && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                              Due: {new Date(task.dueDate).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(task.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
+                <TaskItem 
+                  key={task._id} 
+                  task={task}
+                  onTaskUpdated={handleTaskUpdated}
+                  onTaskDeleted={handleTaskDeleted}
+                />
               ))}
             </div>
           )}

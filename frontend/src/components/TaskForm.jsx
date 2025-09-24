@@ -27,9 +27,9 @@ const TaskForm = ({ onTaskCreated }) => {
 
       const taskData = {
         title: formData.title.trim(),
-        description: formData.description.trim() || undefined,
+        description: formData.description.trim() || '',
         priority: formData.priority,
-        dueDate: formData.dueDate || undefined
+        dueDate: formData.dueDate || null
       };
 
       const response = await createTask(taskData);
